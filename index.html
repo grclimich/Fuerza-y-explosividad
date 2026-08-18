@@ -132,23 +132,43 @@ table.tests td.r{color:var(--muted);}
     var uid='genecfitness-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'@genec_fitness';
     return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//genec_fitness//Fuerza y Explosividad//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+stamp(),'DTSTART;VALUE=DATE:'+ymd(hoy),'DTEND;VALUE=DATE:'+ymd(man),'SUMMARY:'+esc(title),'DESCRIPTION:'+esc(details),'END:VEVENT','END:VCALENDAR'].join('\r\n');
   }
-  function isApple(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1); }
+  function slug(s){ return String(s).replace(/[^a-z0-9]+/gi,'_').slice(0,60)||'entreno'; }
+  function blobDownload(ics,fn){
+    try{
+      var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.href=url; a.download=fn; a.rel='noopener';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); },1500);
+    }catch(e){
+      try{ window.open('data:text/calendar;charset=utf-8,'+encodeURIComponent(ics)); }catch(e2){}
+    }
+  }
+  function deliverICS(ics,title){
+    var fn=slug(title)+'.ics';
+    /* Compartir el .ics como archivo: la vía que funciona en iPhone (Safari y Chrome) */
+    try{
+      if(navigator.canShare){
+        var file=new File([ics],fn,{type:'text/calendar'});
+        if(navigator.canShare({files:[file]})){
+          navigator.share({files:[file],title:title}).catch(function(err){
+            if(err && err.name==='AbortError') return;
+            blobDownload(ics,fn);
+          });
+          return;
+        }
+      }
+    }catch(e){}
+    blobDownload(ics,fn);
+  }
   document.querySelectorAll('a.calbtn').forEach(function(btn){
     btn.addEventListener('click', function(e){
       var ics,title;
       try{ var u=new URL(this.getAttribute('href'),location.href); title=u.searchParams.get('text')||'Entrenamiento'; ics=buildICS(title,u.searchParams.get('details')||''); }
       catch(err){ return; }
       e.preventDefault();
-      try{
-        if(isApple()){ location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics); }
-        else{
-          var fn=title.replace(/[^a-z0-9]+/gi,'_').slice(0,60)+'.ics';
-          var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
-          var url=URL.createObjectURL(blob); var a=document.createElement('a');
-          a.href=url; a.download=fn; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-          setTimeout(function(){URL.revokeObjectURL(url);},1500);
-        }
-      }catch(e2){ window.open(this.getAttribute('href'),'_blank'); }
+      deliverICS(ics,title);
     });
   });
 })();
