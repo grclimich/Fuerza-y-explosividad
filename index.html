@@ -120,58 +120,7 @@ table.tests td.r{color:var(--muted);}
 <div class="foot">@genec_fitness · Fuerza y Explosividad — Fase inicial</div>
 <div class="final"><h2>¡A POR ELLO!</h2><div>Completa estas 4 semanas con constancia y calidad. Al terminar, retesteamos y montamos el siguiente bloque subiendo el nivel.</div><div class="brand">FITNESS SPACE · <span class="tag">@genec_fitness</span></div></div>
 </div><script>
-/* ===== Añadir a Calendar — global (.ics) =====
-   iPhone/iPad/Mac -> Calendario nativo | Android/PC -> descarga .ics | respaldo: Google */
-(function(){
-  function pad(n){ n=String(n); return n.length<2?'0'+n:n; }
-  function ymd(d){ return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate()); }
-  function stamp(){ var d=new Date(); return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z'; }
-  function esc(s){ return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n'); }
-  function buildICS(title,details){
-    var hoy=new Date(), man=new Date(); man.setDate(hoy.getDate()+1);
-    var uid='genecfitness-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'@genec_fitness';
-    return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//genec_fitness//Fuerza y Explosividad//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+stamp(),'DTSTART;VALUE=DATE:'+ymd(hoy),'DTEND;VALUE=DATE:'+ymd(man),'SUMMARY:'+esc(title),'DESCRIPTION:'+esc(details),'END:VEVENT','END:VCALENDAR'].join('\r\n');
-  }
-  function slug(s){ return String(s).replace(/[^a-z0-9]+/gi,'_').slice(0,60)||'entreno'; }
-  function blobDownload(ics,fn){
-    try{
-      var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
-      var url=URL.createObjectURL(blob);
-      var a=document.createElement('a');
-      a.href=url; a.download=fn; a.rel='noopener';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function(){ URL.revokeObjectURL(url); },1500);
-    }catch(e){
-      try{ window.open('data:text/calendar;charset=utf-8,'+encodeURIComponent(ics)); }catch(e2){}
-    }
-  }
-  function deliverICS(ics,title){
-    var fn=slug(title)+'.ics';
-    /* Compartir el .ics como archivo: la vía que funciona en iPhone (Safari y Chrome) */
-    try{
-      if(navigator.canShare){
-        var file=new File([ics],fn,{type:'text/calendar'});
-        if(navigator.canShare({files:[file]})){
-          navigator.share({files:[file],title:title}).catch(function(err){
-            if(err && err.name==='AbortError') return;
-            blobDownload(ics,fn);
-          });
-          return;
-        }
-      }
-    }catch(e){}
-    blobDownload(ics,fn);
-  }
-  document.querySelectorAll('a.calbtn').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      var ics,title;
-      try{ var u=new URL(this.getAttribute('href'),location.href); title=u.searchParams.get('text')||'Entrenamiento'; ics=buildICS(title,u.searchParams.get('details')||''); }
-      catch(err){ return; }
-      e.preventDefault();
-      deliverICS(ics,title);
-    });
-  });
-})();
+/* Botón calendario: abre el enlace nativo de Google Calendar (app si está instalada). Sin interceptar. */
 
 /* ===== Enviar a Notas — compartir nativo / copiar / mostrar texto ===== */
 (function(){
