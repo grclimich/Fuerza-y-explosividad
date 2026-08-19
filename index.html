@@ -25,6 +25,8 @@ h1.sec{font-size:22px;margin:14px 0 4px;}
 .dmeta{color:var(--muted);font-size:12px;font-weight:400;margin-top:1px;}
 .calbtn{background:var(--accent);color:#fff;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;white-space:nowrap;display:inline-block;}
 .calbtn:hover{background:#b01a24;}
+.sinvideo{opacity:.35;cursor:default;filter:grayscale(1);}
+
 .dayacts{display:flex;gap:6px;align-items:flex-start;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
 .notebtn{background:var(--dark);color:#fff;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;white-space:nowrap;display:inline-block;border:none;cursor:pointer;font-family:inherit;line-height:1.2;}
 .notebtn:hover{background:#2a2f38;}
@@ -197,6 +199,99 @@ table.tests td.r{color:var(--muted);}
       sendToNotes(text,btn);
     });
   });
+})();
+</script>
+<script>
+/* ==========================================================
+   VÍDEOS DE EJERCICIOS  —  pega aquí tu URL de Vimeo
+   ----------------------------------------------------------
+   • Rellena solo la comilla de la derecha de cada ejercicio.
+   • Ejemplo:  "Sentadilla hack":  "https://vimeo.com/123456789",
+   • Se aplica automáticamente al glosario y a las 4 semanas.
+   • Lo que dejes vacío ("") queda como botón sin vídeo (atenuado).
+   ========================================================== */
+window.VIDEOS = {
+    "Abducción de cadera con banda":         "",
+    "Aducción en máquina":                   "https://vimeo.com/manage/videos/1087386993",
+    "Aterrizaje de cajón":                   "",
+    "Búlgara con salto":                     "https://vimeo.com/manage/videos/1219607273",
+    "Curl de bíceps con mancuernas":         "https://vimeo.com/manage/videos/1088142412",
+    "Curl nórdico":                          "https://vimeo.com/manage/videos/1219609983",
+    "Dominada":                              "https://vimeo.com/manage/videos/1083152673",
+    "Dominada explosiva con banda":          "https://vimeo.com/manage/videos/1219654626",
+    "Elevaciones laterales":                 "https://vimeo.com/manage/videos/1078987991",
+    "Flexor de cadera con brazos arriba":    "https://vimeo.com/manage/videos/1219648748",
+    "Gemelos en máquina":                    "https://vimeo.com/manage/videos/1087367386",
+    "Hip thrust":                            "https://vimeo.com/manage/videos/1078965946",
+    "Jalón al pecho":                        "https://vimeo.com/manage/videos/1087818989",
+    "Lanzamiento de balón al suelo":         "",
+    "Movilidad":                             "https://vimeo.com/manage/videos/1219603152",
+    "Peso muerto":                           "https://vimeo.com/manage/videos/1089374145",
+    "Peso muerto isométrico contra pines":   "https://vimeo.com/manage/videos/1219608462",
+    "Pogos / saltos reactivos":              "https://vimeo.com/manage/videos/1219657798",
+    "Press banca en máquina / Smith":        "https://vimeo.com/manage/videos/1219648025",
+    "Press inclinado en máquina / Smith":    "https://vimeo.com/manage/videos/1219648238",
+    "Puente + abducción con banda":          "https://vimeo.com/manage/videos/1219655294",
+    "Remo en máquina":                       "https://vimeo.com/manage/videos/1087390080",
+    "Rotación de cadera sentado":            "https://vimeo.com/manage/videos/1219648555",
+    "Rotación de hombro con banda":          "https://vimeo.com/manage/videos/1219648987",
+    "Salto de longitud":                     "",
+    "Salto de profundidad + salto":          "https://vimeo.com/manage/videos/1219649403",
+    "Salto lateral máximo":                  "",
+    "Salto vertical máximo":                 "",
+    "Saltos de zancada":                     "https://vimeo.com/manage/videos/1219650077",
+    "Saltos laterales (patinador)":          "",
+    "Saltos unilaterales con discos":        "https://vimeo.com/manage/videos/1219649770",
+    "Semisentadilla con salto":              "https://vimeo.com/manage/videos/1219652966",
+    "Sentadilla búlgara":                    "https://vimeo.com/manage/videos/1078958663",
+    "Sentadilla con desplazamiento lateral": "",
+    "Sentadilla hack":                       "https://vimeo.com/manage/videos/1219605354",
+    "Sentadilla isométrica con barra":       "https://vimeo.com/manage/videos/1219653249",
+    "Sentadilla sumo mantenida":             "",
+    "Soleo isométrico":                      "",
+    "Step-up con barra":                     "https://vimeo.com/manage/videos/1219617763",
+    "Step-up en caja con salto":             "",
+    "Zancada isométrica con barra":          "https://vimeo.com/manage/videos/1219653649",
+    "Zancada saltada (bounds)":              "",
+};
+
+/* ---- Motor (no hace falta tocar nada de aquí abajo) ---- */
+(function(){
+  function norm(t){ return (t||'').replace(/\s+/g,' ').trim(); }
+  function canon(s){
+    s=norm(s);
+    s=s.split(/\s+—\s+/)[0];          /* quita "— pesado" etc. */
+    s=s.replace(/\s*\([^)]*\)\s*$/,''); /* quita "(...)" final */
+    return norm(s);
+  }
+  /* mapa canónico -> url a partir de tu diccionario */
+  var MAP={};
+  for(var k in window.VIDEOS){ if(window.VIDEOS.hasOwnProperty(k)){ MAP[canon(k)]=String(window.VIDEOS[k]||'').trim(); } }
+  function nameFor(el){
+    if(el.matches('a.vid')) return norm(el.textContent);
+    var row=el.closest('tr');
+    if(row){ var ex=row.querySelector('.exname'); if(ex) return norm(ex.textContent); }
+    var line=el.closest('.oneline');
+    if(line){ var v=line.querySelector('a.vid'); if(v) return norm(v.textContent);
+              var ex2=line.querySelector('.exname'); if(ex2) return norm(ex2.textContent); }
+    return '';
+  }
+  var links=document.querySelectorAll('a.vid, a.play, a.gif');
+  var faltan={};
+  links.forEach(function(a){
+    var name=nameFor(a);
+    var url = name ? (MAP[canon(name)]||'') : '';
+    if(url){ a.setAttribute('href',url); a.classList.remove('sinvideo'); }
+    else{
+      a.removeAttribute('href');
+      a.classList.add('sinvideo');
+      a.setAttribute('title','Vídeo pendiente');
+      a.addEventListener('click',function(e){ e.preventDefault(); });
+      if(name) faltan[canon(name)]=true;
+    }
+  });
+  var n=Object.keys(faltan).length;
+  if(n>0 && window.console) console.log('[Vídeos] Ejercicios sin URL de Vimeo: '+n, Object.keys(faltan));
 })();
 </script>
 </body></html>
