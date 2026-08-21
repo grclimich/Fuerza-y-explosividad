@@ -35,6 +35,36 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 
 <style>
+#tg-onboard{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;
+  justify-content:center;padding:22px;background:#0e1116;
+  font-family:inherit;-webkit-font-smoothing:antialiased;overflow-y:auto;}
+#tg-onboard *{box-sizing:border-box;}
+#tg-onboard .tgob-card{width:100%;max-width:440px;margin:auto;text-align:center;color:#fff;}
+#tg-onboard .tgob-brand{font-size:30px;font-weight:800;letter-spacing:.5px;line-height:1.1;}
+#tg-onboard .tgob-brand span{color:#d21f2b;}
+#tg-onboard .tgob-sub{color:#bfc4cc;font-size:14px;margin-top:6px;}
+#tg-onboard .tgob-rule{height:3px;width:64px;background:#d21f2b;border-radius:3px;margin:16px auto 22px;}
+#tg-onboard .tgob-q{font-size:16px;font-weight:700;margin:0 0 16px;}
+#tg-onboard .tgob-btn{display:block;width:100%;border:1px solid #2a2f38;background:#171b22;color:#fff;
+  font-size:15px;font-weight:700;padding:14px 16px;border-radius:12px;margin:10px 0;cursor:pointer;
+  transition:transform .05s ease,border-color .15s ease;font-family:inherit;}
+#tg-onboard .tgob-btn:active{transform:scale(.99);}
+#tg-onboard .tgob-btn.tgob-primary{background:#d21f2b;border-color:#d21f2b;}
+#tg-onboard .tgob-os{border:1px solid #2a2f38;border-radius:14px;padding:14px;margin:12px 0;text-align:left;}
+#tg-onboard .tgob-os.tgob-dim{opacity:.5;}
+#tg-onboard .tgob-os-head{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;margin-bottom:10px;}
+#tg-onboard .tgob-badge{font-size:11px;font-weight:700;color:#0e1116;background:#1fd28a;
+  border-radius:999px;padding:2px 8px;}
+#tg-onboard ol.tgob-list{margin:12px 0 2px;padding-left:20px;color:#dfe3e8;font-size:13.5px;line-height:1.55;}
+#tg-onboard ol.tgob-list b{color:#fff;}
+#tg-onboard .tgob-note{color:#9aa1ab;font-size:12px;margin-top:8px;}
+#tg-onboard .tgob-back{background:none;border:none;color:#bfc4cc;font-size:14px;font-weight:700;
+  padding:12px;margin-top:6px;cursor:pointer;font-family:inherit;}
+body.tgob-lock{overflow:hidden;}
+</style>
+
+
+<style>
 :root{--ink:#15171c;--muted:#5c6270;--line:#e3e6ea;--accent:#d21f2b;--dark:#0e1116;--soft:#f6f7f9;}
 *{box-sizing:border-box;}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.45;font-size:15px;}
