@@ -34,7 +34,16 @@
 <meta name="apple-mobile-web-app-title" content="Fuerza & Expl."/>
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 
+<!-- ============================================================
+     ONBOARDING TELEGRAM  ·  Fuerza y Explosividad  (v2 corregido)
+     Pega TODO este bloque justo ANTES de la etiqueta </body>.
+     Si ya tenías la versión anterior pegada, BÓRRALA y pon esta.
+     Requiere en el <head>:
+       <script src="https://telegram.org/js/telegram-web-app.js"></script>
+     Cambia SITE_URL si mueves el repo.
+     ============================================================ -->
 <style>
+#tg-onboard[hidden]{display:none;}            /* <-- ESTA línea es la corrección clave */
 #tg-onboard{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;
   justify-content:center;padding:22px;background:#0e1116;
   font-family:inherit;-webkit-font-smoothing:antialiased;overflow-y:auto;}
@@ -69,14 +78,12 @@ body.tgob-lock{overflow:hidden;}
     <div class="tgob-sub">Fase inicial · 4 semanas</div>
     <div class="tgob-rule"></div>
 
-    <!-- Paso 1: elegir -->
     <div class="tgob-step" data-step="choose">
       <p class="tgob-q">¿Cómo quieres usar el programa?</p>
       <button class="tgob-btn tgob-primary" id="tgob-open">▶️ Abrir el programa aquí</button>
       <button class="tgob-btn" id="tgob-install">📲 Instalarlo como app en el móvil</button>
     </div>
 
-    <!-- Paso 2: instalar -->
     <div class="tgob-step" data-step="install" hidden>
       <p class="tgob-q">Instálalo como app en tu móvil</p>
 
@@ -110,60 +117,67 @@ body.tgob-lock{overflow:hidden;}
 
 <script>
 (function(){
-  /* === CAMBIA ESTO si mueves el repo === */
-  var SITE_URL = 'https://grclimich.github.io/Fuerza-y-explosividad/';
+  function init(){
+    /* === CAMBIA ESTO si mueves el repo === */
+    var SITE_URL = 'https://grclimich.github.io/Fuerza-y-explosividad/';
 
-  var tg = window.Telegram && window.Telegram.WebApp;
-  var inTelegram = !!(tg && tg.platform && tg.platform !== 'unknown');
-  var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
-                   || window.navigator.standalone === true;
+    var tg = window.Telegram && window.Telegram.WebApp;
+    var inTelegram = !!(tg && tg.platform && tg.platform !== 'unknown');
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+                     || window.navigator.standalone === true;
 
-  var ob = document.getElementById('tg-onboard');
-  if(!ob) return;
+    var ob = document.getElementById('tg-onboard');
+    if(!ob) return;
 
-  /* Solo mostramos el onboarding cuando se abre DENTRO de Telegram.
-     En el navegador normal o ya instalada como app -> directo al programa. */
-  if(!inTelegram || standalone){ return; }
+    /* Solo dentro de Telegram y si NO está ya instalada como app */
+    if(!inTelegram || standalone){ return; }
 
-  ob.hidden = false;
-  document.body.classList.add('tgob-lock');
+    ob.hidden = false;
+    if(document.body){ document.body.classList.add('tgob-lock'); }
 
-  /* Detectar el sistema para resaltar "Tu móvil" */
-  var plat = (tg.platform || '').toLowerCase();
-  var ua = navigator.userAgent || '';
-  var isIOS = plat === 'ios' || /iphone|ipad|ipod/i.test(ua);
-  var isAndroid = plat === 'android' || /android/i.test(ua);
-  if(isIOS){
-    document.querySelector('#tgob-ios .tgob-badge').hidden = false;
-    document.getElementById('tgob-android').classList.add('tgob-dim');
-  } else if(isAndroid){
-    document.querySelector('#tgob-android .tgob-badge').hidden = false;
-    document.getElementById('tgob-ios').classList.add('tgob-dim');
-  }
+    var plat = (tg.platform || '').toLowerCase();
+    var ua = navigator.userAgent || '';
+    var isIOS = plat === 'ios' || /iphone|ipad|ipod/i.test(ua);
+    var isAndroid = plat === 'android' || /android/i.test(ua);
+    if(isIOS){
+      document.querySelector('#tgob-ios .tgob-badge').hidden = false;
+      document.getElementById('tgob-android').classList.add('tgob-dim');
+    } else if(isAndroid){
+      document.querySelector('#tgob-android .tgob-badge').hidden = false;
+      document.getElementById('tgob-ios').classList.add('tgob-dim');
+    }
 
-  function show(step){
-    var steps = ob.querySelectorAll('.tgob-step');
-    for(var i=0;i<steps.length;i++){ steps[i].hidden = (steps[i].getAttribute('data-step') !== step); }
-  }
+    function show(step){
+      var steps = ob.querySelectorAll('.tgob-step');
+      for(var i=0;i<steps.length;i++){ steps[i].hidden = (steps[i].getAttribute('data-step') !== step); }
+    }
 
-  document.getElementById('tgob-open').addEventListener('click', function(){
-    ob.hidden = true;
-    document.body.classList.remove('tgob-lock');
-    try{ if(tg.expand) tg.expand(); }catch(e){}
-  });
-  document.getElementById('tgob-install').addEventListener('click', function(){ show('install'); });
-  document.getElementById('tgob-back').addEventListener('click', function(){ show('choose'); });
-
-  var openers = ob.querySelectorAll('.tgob-openext');
-  for(var j=0;j<openers.length;j++){
-    openers[j].addEventListener('click', function(){
-      try{ if(tg && tg.openLink){ tg.openLink(SITE_URL); return; } }catch(e){}
-      window.open(SITE_URL, '_blank');
+    document.getElementById('tgob-open').addEventListener('click', function(){
+      ob.hidden = true;
+      if(document.body){ document.body.classList.remove('tgob-lock'); }
+      try{ if(tg.expand) tg.expand(); }catch(e){}
     });
+    document.getElementById('tgob-install').addEventListener('click', function(){ show('install'); });
+    document.getElementById('tgob-back').addEventListener('click', function(){ show('choose'); });
+
+    var openers = ob.querySelectorAll('.tgob-openext');
+    for(var j=0;j<openers.length;j++){
+      openers[j].addEventListener('click', function(){
+        try{ if(tg && tg.openLink){ tg.openLink(SITE_URL); return; } }catch(e){}
+        window.open(SITE_URL, '_blank');
+      });
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 })();
 </script>
 <!-- ===== FIN ONBOARDING TELEGRAM ===== -->
+
 
 
 <style>
