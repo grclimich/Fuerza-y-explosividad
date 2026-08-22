@@ -143,8 +143,8 @@ body.tgob-lock{overflow:hidden;}
     /* ===================== CONFIG ===================== */
     var SITE_URL = 'https://grclimich.github.io/Fuerza-y-explosividad/';   /* <-- CAMBIA si mueves el repo */
     var LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw2HW1oJthyqMFucPOgEn9cvvvQryWzeoyriYK90fUCdLbte6BOg78WUuDfYPcmBT83PQ/exec';   /* <-- CAMBIA: URL /exec de tu Google Apps Script. Vacío = solo consola */
-    /* ================================================= */
-
+    /* =================https://script.google.com/macros/s/AKfycbw2HW1oJthyqMFucPOgEn9cvvvQryWzeoyriYK90fUCdLbte6BOg78WUuDfYPcmBT83PQ/exec================================ */
+						
     var tg = window.Telegram && window.Telegram.WebApp;
     var inTelegram = !!(tg && tg.platform && tg.platform !== 'unknown');
     var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
@@ -201,23 +201,29 @@ body.tgob-lock{overflow:hidden;}
     if(!ob) return;
     if(!inTelegram || standalone){ return; }   /* navegador normal o ya instalada -> directo */
 
-    /* Memoria de "ya visto": CloudStorage (por cuenta) + localStorage (reserva) */
-    function lsGet(){ try{ return localStorage.getItem('fye_onboard_seen') === '1'; }catch(e){ return false; } }
-    function lsSet(){ try{ localStorage.setItem('fye_onboard_seen','1'); }catch(e){} }
-    function markSeen(){
-      lsSet();
-      try{ if(tg.CloudStorage && tg.CloudStorage.setItem){ tg.CloudStorage.setItem('onboard_seen','1', function(){}); } }catch(e){}
+    /* Memoria: nº de aperturas. CloudStorage (por cuenta) + localStorage (reserva).
+       0 = 1ª vez -> onboarding | 1 y 2 -> banner (2 veces) | 3+ -> nada.
+       Tope máximo guardado = 3, para no crecer sin fin. */
+    var MAX_N = 3;
+    function lsGetN(){ try{ var v = parseInt(localStorage.getItem('fye_onboard_n'),10); return isNaN(v) ? 0 : v; }catch(e){ return 0; } }
+    function lsSetN(n){ try{ localStorage.setItem('fye_onboard_n', String(n)); }catch(e){} }
+    function setCount(n){
+      if(n > MAX_N) n = MAX_N;
+      lsSetN(n);
+      try{ if(tg.CloudStorage && tg.CloudStorage.setItem){ tg.CloudStorage.setItem('onboard_n', String(n), function(){}); } }catch(e){}
     }
-    function getSeen(cb){
+    function getCount(cb){
       if(tg.CloudStorage && tg.CloudStorage.getItem){
         try{
-          tg.CloudStorage.getItem('onboard_seen', function(err, val){
-            if(err){ cb(lsGet()); } else { cb(val === '1' || lsGet()); }
+          tg.CloudStorage.getItem('onboard_n', function(err, val){
+            var cloudN = (!err && val != null && val !== '') ? parseInt(val,10) : NaN;
+            if(isNaN(cloudN)) cloudN = 0;
+            cb(Math.max(cloudN, lsGetN()));   /* el mayor de los dos, por robustez */
           });
           return;
         }catch(e){}
       }
-      cb(lsGet());
+      cb(lsGetN());
     }
 
     function show(step){
@@ -275,14 +281,17 @@ body.tgob-lock{overflow:hidden;}
       bar.querySelector('.fye-bar-x').addEventListener('click', function(){ bar.remove(); });
     }
 
-    /* Decidir: 1ª vez -> onboarding completo; siguientes -> directo + barrita */
-    getSeen(function(seen){
-      if(!seen){
+    /* Decidir según nº de aperturas:
+         0      -> onboarding completo (1ª vez)
+         1 y 2  -> barrita discreta (2 veces más)
+         3+     -> nada, directo al programa */
+    getCount(function(n){
+      if(n <= 0){
         openOnboard('choose');
-        markSeen();
-      } else {
+      } else if(n <= 2){
         showInstallBar();
       }
+      setCount(n + 1);   /* cuenta esta apertura */
     });
   }
 

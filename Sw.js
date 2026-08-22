@@ -2,7 +2,7 @@
    Cachea el "shell" (la propia página y sus iconos) para que se abra
    sin conexión y arranque como app. Los vídeos son externos (Vimeo)
    y NO se cachean. Sube el número de versión cuando cambies el HTML. */
-const CACHE = 'fye-v9';
+const CACHE = 'fye-v10';
 const SHELL = [
   './',
   './index.html',
